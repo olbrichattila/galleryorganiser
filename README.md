@@ -1,4 +1,4 @@
-# Gallery organiser / splitter
+# Gallery Organizer / Splitter
 
 This small utility can copy your files and split them according to their type and date:
 
@@ -38,10 +38,11 @@ Usage:
 filesplitter --src=./sourcedir --dst=./destinationdir
 
 alternatively from golang:
+
 go run .--src=./sourcedir --dst=./destinationdir
 
-The utility will not overwrite, but skip existing file, so ther is a fast way to continue where you left off, unless you switch overwrite on
+The utility will not overwrite, but skip existing file, so there is a fast way to continue where you left off, unless you switch overwrite on.
+
 filesplitter --src=./sourcedir --dst=./destinationdir --overwrite
 
 ```
-
