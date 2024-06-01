@@ -4,12 +4,6 @@ import (
 	"sync"
 )
 
-type SaveCounter interface {
-	Increment()
-	Decrement()
-	Value() int
-}
-
 type counter struct {
 	mu sync.Mutex
 	v  int
