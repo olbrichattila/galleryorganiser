@@ -72,5 +72,3 @@ Flattern the result (ignore subdirectory names in destinatio folder)
 filesplitter --src=./sourcedir --dst=./destinationdir --flat
 ```
 - Note, using the overwrite and the flat together will keep the last file copied, without overwrite it keeps the firs one if the file names are matching
-
-
