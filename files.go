@@ -57,9 +57,11 @@ func (f *files) Split(sf, df string, overwrite, flat bool) error {
 
 		safeCounter.Increment()
 		go func(c *counter, file fileInfo) {
-			defer c.Decrement()
 			semaphore <- struct{}{}
-			defer func() { <-semaphore }()
+			defer func() {
+				<-semaphore
+				c.Decrement()
+			}()
 
 			err := f.mkDir(folderName)
 			if err == nil {
