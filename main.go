@@ -6,14 +6,14 @@ import (
 )
 
 var (
-	App  = app{f: &files{}}
+	app  = application{f: &files{}}
 	src  string
 	dst  string
 	ovr  bool
 	flat bool
 )
 
-type app struct {
+type application struct {
 	f filer
 }
 
@@ -24,7 +24,7 @@ func main() {
 		return
 	}
 
-	App.f.Split(cleanPath(src), cleanPath(dst), ovr, flat)
+	app.f.Split(cleanPath(src), cleanPath(dst), ovr, flat)
 }
 
 func cleanPath(p string) string {
