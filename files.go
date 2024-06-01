@@ -31,7 +31,6 @@ type fileInfo struct {
 }
 
 func (f *files) Split(sf, df string, overwrite, flat bool) error {
-	semaphore := make(chan struct{}, paralellFileCount)
 	safeCounter := &counter{}
 
 	f.overwrite = overwrite
@@ -57,11 +56,7 @@ func (f *files) Split(sf, df string, overwrite, flat bool) error {
 
 		safeCounter.Increment()
 		go func(c *counter, file fileInfo) {
-			semaphore <- struct{}{}
-			defer func() {
-				<-semaphore
-				c.Decrement()
-			}()
+			defer c.Decrement()
 
 			err := f.mkDir(folderName)
 			if err == nil {
