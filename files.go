@@ -1,3 +1,4 @@
+// Package main is the entry point of this application
 package main
 
 import (
@@ -10,6 +11,7 @@ import (
 
 const (
 	paralellFileCount = 10
+	dateBreakupFormat = "2006/01"
 )
 
 type filer interface {
@@ -48,13 +50,13 @@ func (f *files) Split(sf, df string, overwrite, flat bool) error {
 		fileName := file.fileInfo.Name()
 		var folderName string
 		if flat {
-			folderName = f.extension(fileName) + "/" + file.fileInfo.ModTime().Format("2006/01")
+			folderName = f.extension(fileName) + "/" + file.fileInfo.ModTime().Format(dateBreakupFormat)
 		} else {
-			folderName = file.relPath + f.extension(fileName) + "/" + file.fileInfo.ModTime().Format("2006/01")
+			folderName = file.relPath + f.extension(fileName) + "/" + file.fileInfo.ModTime().Format(dateBreakupFormat)
 		}
 
 		safeCounter.Increment()
-		go func(c *counter, i, l int, file fileInfo) {
+		go func(c *counter, file fileInfo) {
 			defer c.Decrement()
 			semaphore <- struct{}{}
 			defer func() { <-semaphore }()
@@ -67,7 +69,7 @@ func (f *files) Split(sf, df string, overwrite, flat bool) error {
 				}
 			}
 
-		}(safeCounter, i, fileCount, file)
+		}(safeCounter, file)
 
 		for {
 			if safeCounter.Value() <= paralellFileCount {

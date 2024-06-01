@@ -24,7 +24,10 @@ func main() {
 		return
 	}
 
-	app.f.Split(cleanPath(src), cleanPath(dst), ovr, flat)
+	err := app.f.Split(cleanPath(src), cleanPath(dst), ovr, flat)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
 }
 
 func cleanPath(p string) string {
