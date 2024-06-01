@@ -2,6 +2,8 @@
 
 This small utility can copy your files and split them according to their type and date:
 If you have sub folders they all goint to be processed and the below breakdown will be per sub folder
+The application copies 10 fiels at the same time to be able to cope with large amount of files effectively.
+If your computer can handle more, or cannot handle as much, change constant: ```paralellFileCount = 10``` in files go
 
 For example:
 
@@ -69,5 +71,6 @@ Flattern the result (ignore subdirectory names in destinatio folder)
 ```
 filesplitter --src=./sourcedir --dst=./destinationdir --flat
 ```
-(None, using the overwrite and the flat together will keep the last file copied, without overwrite it keeps the firs one if the file names are matching)
+- Note, using the overwrite and the flat together will keep the last file copied, without overwrite it keeps the firs one if the file names are matching
+
 
