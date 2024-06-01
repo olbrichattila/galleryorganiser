@@ -3,6 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
+	"path/filepath"
 )
 
 var (
@@ -35,7 +37,34 @@ func cleanPath(p string) string {
 		return p[:len(p)-1]
 	}
 
-	return p
+	absPath, err := resolvePath(p)
+	if err != nil {
+		panic(fmt.Sprintf("Error resolving path %s: %v\n", p, err))
+
+	}
+
+	return absPath
+}
+
+func resolvePath(path string) (string, error) {
+	if filepath.IsAbs(path) {
+		return path, nil
+	}
+
+	if path[:2] == "~/" {
+		homeDir, err := os.UserHomeDir()
+		if err != nil {
+			return "", err
+		}
+		return filepath.Join(homeDir, path[2:]), nil
+	}
+
+	absPath, err := filepath.Abs(path)
+	if err != nil {
+		return "", err
+	}
+
+	return absPath, nil
 }
 
 func init() {

@@ -52,7 +52,6 @@ Flattern destination folder structure
 
 
 ## Usage:
-### Use absolute paths!
 ```
 filesplitter --src=./sourcedir --dst=./destinationdir
 ```
