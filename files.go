@@ -118,7 +118,7 @@ func (f *files) readDir() (*[]fileInfo, error) {
 }
 
 func (f *files) mkDir(folderName string) error {
-	err := os.MkdirAll(f.destinationFolder+"/"+folderName, 0755)
+	err := os.MkdirAll(f.destinationFolder+"/"+folderName, os.ModePerm)
 	if err != nil {
 		return err
 	}
