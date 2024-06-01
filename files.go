@@ -121,7 +121,6 @@ func (f *files) mkDir(folderName string) error {
 	err := os.MkdirAll(f.destinationFolder+"/"+folderName, 0755)
 	if err != nil {
 		return err
-
 	}
 
 	return nil
