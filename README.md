@@ -53,19 +53,21 @@ Flattern destination folder structure
 ### Use absolute paths!
 ```
 filesplitter --src=./sourcedir --dst=./destinationdir
+```
 
 alternatively from golang:
+```
 
 go run .--src=./sourcedir --dst=./destinationdir
+```
 
 The utility will not overwrite, but skip existing file, so there is a fast way to continue where you left off, unless you switch overwrite on.
-
+```
 filesplitter --src=./sourcedir --dst=./destinationdir --overwrite
-
+```
 Flattern the result (ignore subdirectory names in destinatio folder)
-
+```
 filesplitter --src=./sourcedir --dst=./destinationdir --flat
-
+```
 (None, using the overwrite and the flat together will keep the last file copied, without overwrite it keeps the firs one if the file names are matching)
 
-```
