@@ -5,10 +5,6 @@ import (
 	"fmt"
 )
 
-type app struct {
-	f filer
-}
-
 var (
 	App  = app{f: &files{}}
 	src  string
@@ -16,6 +12,10 @@ var (
 	ovr  bool
 	flat bool
 )
+
+type app struct {
+	f filer
+}
 
 func main() {
 	if src == "" || dst == "" {
