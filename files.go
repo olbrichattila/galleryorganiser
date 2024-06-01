@@ -3,10 +3,9 @@ package main
 import (
 	"fmt"
 	"io"
-	"io/fs"
+	"math"
 	"os"
 	"path/filepath"
-	"sync"
 )
 
 const (
@@ -14,7 +13,7 @@ const (
 )
 
 type filer interface {
-	Split(string, string, bool) error
+	Split(string, string, bool, bool) error
 }
 
 type files struct {
@@ -23,9 +22,15 @@ type files struct {
 	overwrite         bool
 }
 
-func (f *files) Split(sf, df string, overwrite bool) error {
-	var wg sync.WaitGroup
+type fileInfo struct {
+	path     string
+	relPath  string
+	fileInfo os.FileInfo
+}
+
+func (f *files) Split(sf, df string, overwrite, flat bool) error {
 	semaphore := make(chan struct{}, paralellFileCount)
+	safeCounter := &counter{}
 
 	f.overwrite = overwrite
 	f.sourceFolder = sf
@@ -36,47 +41,73 @@ func (f *files) Split(sf, df string, overwrite bool) error {
 		return err
 	}
 
-	for i, file := range *files {
-		if file.IsDir() {
-			continue
-		}
-		fileName := file.Name()
-		folderName := f.extension(fileName) + "/" + file.ModTime().Format("2006/01")
+	fileCount := len(*files)
+	fmt.Printf("Processing %d files\n", fileCount)
 
-		err := f.mkDir(folderName)
-		if err != nil {
-			return err
+	for i, file := range *files {
+		fileName := file.fileInfo.Name()
+		var folderName string
+		if flat {
+			folderName = f.extension(fileName) + "/" + file.fileInfo.ModTime().Format("2006/01")
+		} else {
+			folderName = file.relPath + f.extension(fileName) + "/" + file.fileInfo.ModTime().Format("2006/01")
 		}
-		wg.Add(1)
-		go func(i int) {
-			defer wg.Done()
-			fmt.Printf("%d File copy started\n", i)
+
+		safeCounter.Increment()
+		go func(c *counter, i, l int, file fileInfo) {
+			defer c.Decrement()
 			semaphore <- struct{}{}
 			defer func() { <-semaphore }()
 
-			err := f.copyFile(folderName, fileName)
-			if err != nil {
-				fmt.Println("Copy error", err)
+			err := f.mkDir(folderName)
+			if err == nil {
+				err = f.copyFile(file.path, folderName, fileName)
+				if err != nil {
+					fmt.Println("Copy error", err)
+				}
 			}
 
-			fmt.Printf("%d File %s/%s copyed to %s/%s/%s\n", i, f.sourceFolder, fileName, f.destinationFolder, folderName, fileName)
-		}(i)
+		}(safeCounter, i, fileCount, file)
+
+		for {
+			if safeCounter.Value() <= paralellFileCount {
+				fmt.Printf("\rProgress %.0f%%", math.Round(float64(i)/float64(fileCount)*100))
+				break
+			}
+		}
 	}
 
-	wg.Wait()
-	fmt.Println("Done.")
+	for {
+		if safeCounter.Value() == 0 {
+			break
+		}
+	}
+
+	fmt.Println("\nDone.")
 
 	return nil
 }
 
-func (f *files) readDir() (*[]fs.FileInfo, error) {
-	d, err := os.Open(f.sourceFolder)
-	if err != nil {
-		return nil, err
-	}
-	defer d.Close()
+func (f *files) readDir() (*[]fileInfo, error) {
+	var files []fileInfo
 
-	files, err := d.Readdir(-1)
+	err := filepath.Walk(f.sourceFolder, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if !info.IsDir() {
+			relPath, err := filepath.Rel(f.sourceFolder, path)
+			if err != nil {
+				return err
+			}
+			dir, _ := filepath.Split(relPath)
+
+			files = append(files, fileInfo{fileInfo: info, path: path, relPath: dir})
+		}
+
+		return nil
+	})
+
 	if err != nil {
 		return nil, err
 	}
@@ -94,12 +125,11 @@ func (f *files) mkDir(folderName string) error {
 	return nil
 }
 
-func (f *files) copyFile(folderName, filaName string) error {
-	destFileName := f.destinationFolder + "/" + folderName + "/" + filaName
+func (f *files) copyFile(sourceFileName, folderName, fileName string) error {
+	destFileName := f.destinationFolder + "/" + folderName + "/" + fileName
 	if !f.overwrite && f.fileExists(destFileName) {
 		return nil
 	}
-	sourceFileName := f.sourceFolder + "/" + filaName
 
 	sourceFile, err := os.Open(sourceFileName)
 	if err != nil {

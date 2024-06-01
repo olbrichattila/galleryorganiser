@@ -10,10 +10,11 @@ type app struct {
 }
 
 var (
-	App = app{f: &files{}}
-	src string
-	dst string
-	ovr bool
+	App  = app{f: &files{}}
+	src  string
+	dst  string
+	ovr  bool
+	flat bool
 )
 
 func main() {
@@ -23,7 +24,7 @@ func main() {
 		return
 	}
 
-	App.f.Split(cleanPath(src), cleanPath(dst), ovr)
+	App.f.Split(cleanPath(src), cleanPath(dst), ovr, flat)
 }
 
 func cleanPath(p string) string {
@@ -38,5 +39,6 @@ func init() {
 	flag.StringVar(&src, "src", "", "Source file path")
 	flag.StringVar(&dst, "dst", "", "Destination file path")
 	flag.BoolVar(&ovr, "overwrite", false, "--overwrite")
+	flag.BoolVar(&flat, "flat", false, "--flat")
 	flag.Parse()
 }

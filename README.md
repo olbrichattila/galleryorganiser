@@ -1,6 +1,7 @@
 # Gallery Organizer / Splitter
 
 This small utility can copy your files and split them according to their type and date:
+If you have sub folders they all goint to be processed and the below breakdown will be per sub folder
 
 For example:
 
@@ -33,7 +34,23 @@ For example:
 
 ```
 
-Usage:
+## Parameters
+
+### --src
+The source file name
+
+### --dst
+The destination file name
+
+### --overwrite
+Overwrite if file exists, otherwise it can continue wher it was left off
+
+### --flat
+Flattern destination folder structure
+
+
+## Usage:
+### Use absolute paths!
 ```
 filesplitter --src=./sourcedir --dst=./destinationdir
 
@@ -44,5 +61,11 @@ go run .--src=./sourcedir --dst=./destinationdir
 The utility will not overwrite, but skip existing file, so there is a fast way to continue where you left off, unless you switch overwrite on.
 
 filesplitter --src=./sourcedir --dst=./destinationdir --overwrite
+
+Flattern the result (ignore subdirectory names in destinatio folder)
+
+filesplitter --src=./sourcedir --dst=./destinationdir --flat
+
+(None, using the overwrite and the flat together will keep the last file copied, without overwrite it keeps the firs one if the file names are matching)
 
 ```
